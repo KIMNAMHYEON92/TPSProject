@@ -23,13 +23,7 @@ ATPSPlayer::ATPSPlayer()
 	
 	cameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	cameraComp->SetupAttachment(springArmComp);
-	
-	// C++에서 BP의 옵션을 직접 수정하는 경우, 해당 옵션들의 변수로 제어 가능
-	// springArmComp->bUsePawnControlRotation = true;
-	// cameraComp->bUsePawnControlRotation = false;
-	// bUseControllerRotationYaw = true;
-	
-	direction = FVector::ZeroVector;
+		
 }
 
 // Called when the game starts or when spawned
@@ -56,15 +50,11 @@ void ATPSPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	// 플레이어 이동 처리
-	// P(결과위치) = P0(초기위치) + v(속도) * t(시간)
 	direction = FTransform(GetControlRotation()).TransformFVector4(direction);
-	// FVector P0 = GetActorLocation();
-	// FVector vt = direction * walkSpeed * DeltaTime;
-	// FVector P = P0 + vt;
-	// SetActorLocation(P);
+
 	// 언리얼 엔진에서 제공하는 등속 운동 구현 함수 AddMovementInput()
 	AddMovementInput(direction);
-	direction = FVector::ZeroVector;
+	direction = FVector::ZeroVector; // FVector(.0f,.0f,.0f)
 }
 
 // Called to bind functionality to input
@@ -77,7 +67,8 @@ void ATPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	{
 		PlayerInput->BindAction(ia_LookUp, ETriggerEvent::Triggered, this, &ATPSPlayer::LookUp);
 		PlayerInput->BindAction(ia_Turn, ETriggerEvent::Triggered, this, &ATPSPlayer::Turn);
-		PlayerInput->BindAction(ia_PlayerMove, ETriggerEvent::Triggered, this, &ATPSPlayer::PlayerMove);
+		PlayerInput->BindAction(ia_Move, ETriggerEvent::Triggered, this, &ATPSPlayer::Move);
+		PlayerInput->BindAction(ia_Jump, ETriggerEvent::Started, this, &ATPSPlayer::InputJump);
 	}
 	
 }
@@ -97,9 +88,15 @@ void ATPSPlayer::Turn(const struct FInputActionValue& inputValue)
 }
 
 // 전후좌우 이동 입력에 따른 콜백 함수 구현
-void ATPSPlayer::PlayerMove(const struct FInputActionValue& inputValue)
+void ATPSPlayer::Move(const struct FInputActionValue& inputValue)
 {
 	FVector2D value = inputValue.Get<FVector2d>(); // 전달받는 2D 값
 	direction.X = value.X;
 	direction.Y = value.Y;
+}
+
+// 점프 입력에 따른 콜백 함수 구현
+void ATPSPlayer::InputJump(const struct FInputActionValue& inputValue)
+{
+	Jump(); // ACharacter 클래스가 제공하는 기본 점프 함수 호출
 }

@@ -45,10 +45,14 @@ public:
 	// 좌우 마우스 회전IA 필드
 	UPROPERTY(EditDefaultsOnly, Category = Input)
 	class UInputAction* ia_Turn;
-		
+
 	// 전후좌우 키보드 이동 IA 필드
 	UPROPERTY(EditDefaultsOnly, Category = Input)
-	class UInputAction* ia_PlayerMove;
+	class UInputAction* ia_Move;
+	
+	// 키보드 점프 IA 필드
+	UPROPERTY(EditDefaultsOnly, Category = Input)
+	class UInputAction* ia_Jump;
 	
 	// 이동 속도
 	UPROPERTY(EditDefaultsOnly, Category = PlayerSetting)
@@ -64,6 +68,9 @@ public:
 	void Turn(const struct FInputActionValue& inputValue);
 	
 	// 전후좌우 이동 입력 함수 선언
-	void PlayerMove(const struct FInputActionValue& inputValue);
+	void Move(const struct FInputActionValue& inputValue);
+	
+	// 점프 입력 함수 선언
+	void InputJump(const struct FInputActionValue& inputValue);
 	
 };
