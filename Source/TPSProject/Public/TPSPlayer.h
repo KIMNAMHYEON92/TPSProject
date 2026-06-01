@@ -38,13 +38,24 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Input)
 	class UInputMappingContext* imc_TPS;
 	
-	// 상하 회전IA 필드
+	// 상하 마우스 회전IA 필드
 	UPROPERTY(EditDefaultsOnly, Category = Input)
 	class UInputAction* ia_LookUp;
 	
-	// 좌우 회전IA 필드
+	// 좌우 마우스 회전IA 필드
 	UPROPERTY(EditDefaultsOnly, Category = Input)
 	class UInputAction* ia_Turn;
+		
+	// 전후좌우 키보드 이동 IA 필드
+	UPROPERTY(EditDefaultsOnly, Category = Input)
+	class UInputAction* ia_PlayerMove;
+	
+	// 이동 속도
+	UPROPERTY(EditDefaultsOnly, Category = PlayerSetting)
+	float walkSpeed = 600.f;
+	
+	// 이동 방향
+	FVector direction;
 	
 	// 상하 회전 입력 함수 선언
 	void LookUp(const struct FInputActionValue& inputValue);
@@ -52,5 +63,7 @@ public:
 	// 좌우 회전 입력 함수 선언
 	void Turn(const struct FInputActionValue& inputValue);
 	
+	// 전후좌우 이동 입력 함수 선언
+	void PlayerMove(const struct FInputActionValue& inputValue);
 	
 };

@@ -29,7 +29,7 @@ ATPSPlayer::ATPSPlayer()
 	// cameraComp->bUsePawnControlRotation = false;
 	// bUseControllerRotationYaw = true;
 	
-	
+	direction = FVector::ZeroVector;
 }
 
 // Called when the game starts or when spawned
@@ -54,6 +54,14 @@ void ATPSPlayer::BeginPlay()
 void ATPSPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	// 플레이어 이동 처리
+	// P0(초기위치) + v(속도) * t(시간)
+	FVector P0 = GetActorLocation();
+	FVector vt = direction * walkSpeed * DeltaTime;
+	FVector P = P0 + vt;
+	SetActorLocation(P);
+	direction = FVector::ZeroVector;
 }
 
 // Called to bind functionality to input
@@ -66,6 +74,7 @@ void ATPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	{
 		PlayerInput->BindAction(ia_LookUp, ETriggerEvent::Triggered, this, &ATPSPlayer::LookUp);
 		PlayerInput->BindAction(ia_Turn, ETriggerEvent::Triggered, this, &ATPSPlayer::Turn);
+		PlayerInput->BindAction(ia_PlayerMove, ETriggerEvent::Triggered, this, &ATPSPlayer::PlayerMove);
 	}
 	
 }
@@ -82,4 +91,12 @@ void ATPSPlayer::Turn(const struct FInputActionValue& inputValue)
 {
 	float value = inputValue.Get<float>();
 	AddControllerYawInput(value); // YAW(Z축) 회전
+}
+
+// 전후좌우 이동 입력에 따른 콜백 함수 구현
+void ATPSPlayer::PlayerMove(const struct FInputActionValue& inputValue)
+{
+	FVector2D value = inputValue.Get<FVector2d>(); // 전달받는 2D 값
+	direction.X = value.X;
+	direction.Y = value.Y;
 }
