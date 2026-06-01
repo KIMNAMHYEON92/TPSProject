@@ -56,7 +56,8 @@ void ATPSPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	// 플레이어 이동 처리
-	// P0(초기위치) + v(속도) * t(시간)
+	// P(결과위치) = P0(초기위치) + v(속도) * t(시간)
+	direction = FTransform(GetControlRotation()).TransformFVector4(direction);
 	FVector P0 = GetActorLocation();
 	FVector vt = direction * walkSpeed * DeltaTime;
 	FVector P = P0 + vt;
