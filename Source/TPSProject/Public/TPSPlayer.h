@@ -29,4 +29,28 @@ public:
 	// 스프링 암 컴포넌트 선언
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 	class USpringArmComponent* springArmComp;
+	
+	// 카메라 컴포넌트 선언
+	UPROPERTY(VisibleAnywhere, Category = Camera)
+	class UCameraComponent* cameraComp;
+	
+	// IMC 선택 필드 선언
+	UPROPERTY(EditDefaultsOnly, Category = Input)
+	class UInputMappingContext* imc_TPS;
+	
+	// 상하 회전IA 필드
+	UPROPERTY(EditDefaultsOnly, Category = Input)
+	class UInputAction* ia_LookUp;
+	
+	// 좌우 회전IA 필드
+	UPROPERTY(EditDefaultsOnly, Category = Input)
+	class UInputAction* ia_Turn;
+	
+	// 상하 회전 입력 함수 선언
+	void LookUp(const struct FInputActionValue& inputValue);
+	
+	// 좌우 회전 입력 함수 선언
+	void Turn(const struct FInputActionValue& inputValue);
+	
+	
 };
