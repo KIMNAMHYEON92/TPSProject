@@ -1,0 +1,47 @@
+# =============================================================================
+# Unreal Engine 5 - C++ Project .gitignore
+# =============================================================================
+
+# 빌드 결과물 (자동 생성됨)
+Binaries/
+Build/
+Intermediate/
+DerivedDataCache/
+
+# 저장/임시 파일
+Saved/
+Docs/
+
+# Visual Studio
+.vs/
+*.sln
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+
+# JetBrains Rider
+.idea/
+*.DotSettings.user
+
+# 컴파일된 에셋 캐시
+*.uplugin.old
+FileOpenOrder/
+
+# 패키징 결과물
+Releases/
+Packages/
+
+# OS 파일
+.DS_Store
+Thumbs.db
+
+# =============================================================================
+# 추적할 파일 (이건 커밋해야 함)
+# Source/       ← C++ 소스코드
+# Content/      ← 에셋 (uasset, umap)
+# Config/       ← 프로젝트 설정
+# *.uproject    ← 프로젝트 파일
+# Docs/         ← 교재 등 문서
+# =============================================================================
