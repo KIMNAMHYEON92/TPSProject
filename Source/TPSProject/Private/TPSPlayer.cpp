@@ -50,7 +50,16 @@ void ATPSPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	// 플레이어 이동 처리
-	direction = FTransform(GetControlRotation()).TransformFVector4(direction);
+	// GetControlRotation() 함수는 좌우(YAW) 말고도 상하(PITCH)까지 포함된 카메라 전체 회전을 가져옴
+	// PITCH 움직임에 X축을 기울이는 성질이 있어서 카메라가 아래를 향하는 상태에서 전방 이동시,
+	// "앞으로 가는 이동 입력" + "아래로 박는 방향 입력"이 섞임 -> 수평 속도가 cos(Pitch)로 줄어듬.
+	
+	// 컨트롤러의 현재 회전 값들(YAW, PITCH, ROLL)을 가져온 후 분할하여 필요한 것만 이동시 이용.
+	FRotator controlRot = GetControlRotation();
+	controlRot.Pitch = 0.0f;
+	controlRot.Roll = 0.0f;
+	
+	direction = FTransform(controlRot).TransformFVector4(direction);
 
 	// 언리얼 엔진에서 제공하는 등속 운동 구현 함수 AddMovementInput()
 	AddMovementInput(direction);
