@@ -6,6 +6,7 @@
 #include "Bullet.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -75,6 +76,9 @@ void ATPSPlayer::BeginPlay()
 		}
 	}
 	
+	// 스나이퍼 UI 위젯 인스턴스 생성 (화면에 보이기 위해서는 AddToViewport() 호출이 필요)
+	sniperUI = CreateWidget(GetWorld(), sniperUIFactory);
+	
 }
 
 // Called every frame
@@ -114,6 +118,8 @@ void ATPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		PlayerInput->BindAction(ia_Fire, ETriggerEvent::Started, this, &ATPSPlayer::InputFire);
 		PlayerInput->BindAction(ia_GrenadeGun, ETriggerEvent::Started, this, &ATPSPlayer::ChangeToGrenageGun);
 		PlayerInput->BindAction(ia_SniperGun, ETriggerEvent::Started, this, &ATPSPlayer::ChangeToSniperGun);
+		PlayerInput->BindAction(ia_SniperZoom, ETriggerEvent::Started, this, &ATPSPlayer::SniperZoom);
+		//PlayerInput->BindAction(ia_SniperZoom, ETriggerEvent::Completed, this, &ATPSPlayer::SniperZoom);
 	}
 	
 }
@@ -149,23 +155,30 @@ void ATPSPlayer::InputJump(const struct FInputActionValue& inputValue)
 // 총알발사 입력에 따른 콜백 함수 구현
 void ATPSPlayer::InputFire(const struct FInputActionValue& inputValue)
 {
-	// 총 스켈레탈메시에 FirePosition이란 이름의 소켓의 월드 transform(위치/회전)을 가져옴
-	FTransform firePosition = gunMeshComp->GetSocketTransform(TEXT("FirePosition"));
-	// 위 위치/회전으로 BulletFactory가 BP_Bullet 인스턴스를 월드에 스폰
-	GetWorld()->SpawnActor<ABullet>(bulletFactory,firePosition);
+	if (bUsingGrenadeGun)
+	{
+		// 총 스켈레탈메시에 FirePosition이란 이름의 소켓의 월드 transform(위치/회전)을 가져옴
+		FTransform firePosition = gunMeshComp->GetSocketTransform(TEXT("FirePosition"));
+		// 위 위치/회전으로 BulletFactory가 BP_Bullet 인스턴스를 월드에 스폰
+		GetWorld()->SpawnActor<ABullet>(bulletFactory,firePosition);
+	}
 }
 
-// 
+// 유탄총으로 스왑
 void ATPSPlayer::ChangeToGrenageGun(const struct FInputActionValue& inputValue)
 {
-	// 사용 중 플래그를 유탄총으로 변경
-	bUsingGrenadeGun = true;
-	// 스나이퍼 숨기고 / 유탄총 보이기
-	sniperGunComp->SetVisibility(false);
-	gunMeshComp->SetVisibility(true);
+	if (bSniperZoom==false)
+	{
+		// 사용 중 플래그를 유탄총으로 변경
+		bUsingGrenadeGun = true;
+		// 스나이퍼 숨기고 / 유탄총 보이기
+		sniperGunComp->SetVisibility(false);
+		gunMeshComp->SetVisibility(true);
+	}
+	
 }
 
-// 
+// 스나이퍼건으로 스왑
 void ATPSPlayer::ChangeToSniperGun(const struct FInputActionValue& inputValue)
 {
 	// 사용 중 플래그를 유탄총으로 변경
@@ -173,4 +186,29 @@ void ATPSPlayer::ChangeToSniperGun(const struct FInputActionValue& inputValue)
 	// 스나이퍼 숨기고 / 유탄총 보이기
 	sniperGunComp->SetVisibility(true);
 	gunMeshComp->SetVisibility(false);
+}
+
+// 조준 입력에 따른 콜백 함수 구현
+void ATPSPlayer::SniperZoom(const struct FInputActionValue& inputValue)
+{
+	// 스나이퍼 총이 아닐때는 동작하지 않음
+	if (bUsingGrenadeGun)
+	{
+		return;
+	}
+	
+	if (bSniperZoom==false)
+	{
+		// 키 누름 - 줌 모드에 진입
+		bSniperZoom = true;
+		sniperUI->AddToViewport(); // 조준경 UI 화면에 나타남
+		cameraComp->SetFieldOfView(45.f); // FOV 시야각을 좁혀서 줌인 효과
+	}
+	else
+	{
+		// 키 해제 - 줌 모드에서 해제
+		bSniperZoom = false;
+		sniperUI->RemoveFromViewport(); // 조준경 UI 제거
+		cameraComp->SetFieldOfView(90.f); // FOV 시야각 복구
+	}
 }
