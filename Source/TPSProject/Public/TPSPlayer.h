@@ -38,6 +38,10 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = GunMesh)
 	class USkeletalMeshComponent* gunMeshComp;
 	
+	// 스나이퍼 총 스태틱 메시 컴포넌트 선언
+	UPROPERTY(VisibleAnywhere, Category = GunMesh)
+	class UStaticMeshComponent* sniperGunComp;
+	
 	// IMC 선택 필드 선언
 	UPROPERTY(EditDefaultsOnly, Category = Input)
 	class UInputMappingContext* imc_TPS;
