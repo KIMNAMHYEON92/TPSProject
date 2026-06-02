@@ -73,7 +73,7 @@ void ATPSPlayer::Tick(float DeltaTime)
 	controlRot.Pitch = 0.0f;
 	controlRot.Roll = 0.0f;
 	
-	direction = FTransform(controlRot).TransformFVector4(direction);
+	direction = FRotationMatrix(controlRot).TransformFVector4(direction);
 
 	// 언리얼 엔진에서 제공하는 등속 운동 구현 함수 AddMovementInput()
 	AddMovementInput(direction);
