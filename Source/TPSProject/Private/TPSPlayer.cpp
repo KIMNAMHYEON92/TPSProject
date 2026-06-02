@@ -3,6 +3,7 @@
 
 #include "TPSProject/Public/TPSPlayer.h"
 
+#include "Bullet.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
@@ -91,6 +92,7 @@ void ATPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		PlayerInput->BindAction(ia_Turn, ETriggerEvent::Triggered, this, &ATPSPlayer::Turn);
 		PlayerInput->BindAction(ia_Move, ETriggerEvent::Triggered, this, &ATPSPlayer::Move);
 		PlayerInput->BindAction(ia_Jump, ETriggerEvent::Started, this, &ATPSPlayer::InputJump);
+		PlayerInput->BindAction(ia_Fire, ETriggerEvent::Started, this, &ATPSPlayer::InputFire);
 	}
 	
 }
@@ -121,4 +123,13 @@ void ATPSPlayer::Move(const struct FInputActionValue& inputValue)
 void ATPSPlayer::InputJump(const struct FInputActionValue& inputValue)
 {
 	Jump(); // ACharacter 클래스가 제공하는 기본 점프 함수 호출
+}
+
+//
+void ATPSPlayer::InputFire(const struct FInputActionValue& inputValue)
+{
+	// 총 스켈레탈메시에 FirePosition이란 이름의 소켓의 월드 transform(위치/회전)을 가져옴
+	FTransform firePosition = gunMeshComp->GetSocketTransform(TEXT("FirePosition"));
+	// 위 위치/회전으로 BulletFactory가 BP_Bullet 인스턴스를 월드에 스폰
+	GetWorld()->SpawnActor<ABullet>(bulletFactory,firePosition);
 }
