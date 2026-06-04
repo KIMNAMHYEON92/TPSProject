@@ -83,6 +83,12 @@ void ATPSPlayer::BeginPlay()
 	
 	// 스나이퍼 UI 위젯 인스턴스 생성 (화면에 보이기 위해서는 AddToViewport() 호출이 필요)
 	sniperUI = CreateWidget(GetWorld(), sniperUIFactory);
+	// 일반조준 크로스헤어 UI 위젯 인스턴스 생성. AddtoViewport()로 호출
+	crosshairUI = CreateWidget(GetWorld(), crosshairUIFactory);
+	if (crosshairUI)
+	{
+		crosshairUI->AddToViewport();
+	}
 	
 }
 
@@ -261,6 +267,10 @@ void ATPSPlayer::SniperZoom(const struct FInputActionValue& inputValue)
 	if (bSniperZoom==false)
 	{
 		// 키 누름 - 줌 모드에 진입
+		if (crosshairUI)
+		{
+			crosshairUI->RemoveFromViewport();
+		}		
 		bSniperZoom = true;
 		sniperUI->AddToViewport(); // 조준경 UI 화면에 나타남
 		cameraComp->SetFieldOfView(45.f); // FOV 시야각을 좁혀서 줌인 효과
@@ -270,6 +280,11 @@ void ATPSPlayer::SniperZoom(const struct FInputActionValue& inputValue)
 		// 키 해제 - 줌 모드에서 해제
 		bSniperZoom = false;
 		sniperUI->RemoveFromViewport(); // 조준경 UI 제거
+		if (crosshairUI)
+		{
+			crosshairUI->AddToViewport();
+		}
+		
 		cameraComp->SetFieldOfView(90.f); // FOV 시야각 복구
 	}
 }
