@@ -69,4 +69,15 @@ public:
 	// 공격 주기
 	UPROPERTY(EditDefaultsOnly, Category = FSM)
 	float attackDelayTime = 1.f;
+	
+	// 피격 알림 이벤트 함수
+	void OnDamagedProcess();
+	
+	// 체력
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FSM)
+	int32 hp = 3;
+	
+	// 피격 대기 시간(경직)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FSM)
+	float damagedDelayTime = 1.f;
 };
