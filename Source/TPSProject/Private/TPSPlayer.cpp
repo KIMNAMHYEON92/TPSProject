@@ -121,7 +121,7 @@ void ATPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		PlayerInput->BindAction(ia_Move, ETriggerEvent::Triggered, this, &ATPSPlayer::Move);
 		PlayerInput->BindAction(ia_Jump, ETriggerEvent::Started, this, &ATPSPlayer::InputJump);
 		PlayerInput->BindAction(ia_Fire, ETriggerEvent::Started, this, &ATPSPlayer::InputFire);
-		PlayerInput->BindAction(ia_GrenadeGun, ETriggerEvent::Started, this, &ATPSPlayer::ChangeToGrenageGun);
+		PlayerInput->BindAction(ia_GrenadeGun, ETriggerEvent::Started, this, &ATPSPlayer::ChangeToGrenadeGun);
 		PlayerInput->BindAction(ia_SniperGun, ETriggerEvent::Started, this, &ATPSPlayer::ChangeToSniperGun);
 		PlayerInput->BindAction(ia_SniperZoom, ETriggerEvent::Started, this, &ATPSPlayer::SniperZoom);
 		//PlayerInput->BindAction(ia_SniperZoom, ETriggerEvent::Completed, this, &ATPSPlayer::SniperZoom);
@@ -199,10 +199,26 @@ void ATPSPlayer::InputFire(const struct FInputActionValue& inputValue)
 				);
 			*/
 			// [DEBUG] 타격 위치 시각화
-			DrawDebugSphere(GetWorld(),hitResult.ImpactPoint, 20.f, 12, FColor::Yellow, false, 2.f);
+			DrawDebugSphere(GetWorld(),hitResult.ImpactPoint, 20.f, 12, 
+				FColor::Yellow, false, 2.f);
 			
 			// 타격 위치에 Niagara 이펙트 스폰
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),bulletEffectFactory,hitResult.ImpactPoint);
+			
+			// 타격 물체에 물리 엔진 적용
+			UPrimitiveComponent* hitComp= hitResult.GetComponent();
+			if (hitComp && hitComp->IsSimulatingPhysics())
+			{
+				// 1. 조준 방향 : 시작점에서 종료점 방향
+				FVector dir = (endPosition - startPosition).GetSafeNormal();
+				// 2. 날려보낼 힘 F= ma, 방향 * 질량 * 가속도
+				FVector force = dir * hitComp->GetMass() * 20000.f;
+				// 3. 타격된 지점에 힘을 적용
+				// AddForce(F) : 무게중심에 힘을 적용. 회전없고, 평행이동
+				// AddForceAtLocation(F, pos) : 특정위치에 힘을 적용. 회전(토크)가 발생한다. ex 모서리 맞으면 빙글빙글 돌면서 뒤로밀림
+				hitComp->AddForceAtLocation(force, hitResult.ImpactPoint);
+				
+			}
 			
 		}
 		
@@ -210,7 +226,7 @@ void ATPSPlayer::InputFire(const struct FInputActionValue& inputValue)
 }
 
 // 유탄총으로 스왑
-void ATPSPlayer::ChangeToGrenageGun(const struct FInputActionValue& inputValue)
+void ATPSPlayer::ChangeToGrenadeGun(const struct FInputActionValue& inputValue)
 {
 	if (bSniperZoom==false)
 	{

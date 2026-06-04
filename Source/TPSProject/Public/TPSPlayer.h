@@ -119,7 +119,7 @@ public:
 	void InputFire(const struct FInputActionValue& inputValue);
 	
 	// 유탄총으로 교체 입력 함수 선언
-	void ChangeToGrenageGun(const struct FInputActionValue& inputValue);
+	void ChangeToGrenadeGun(const struct FInputActionValue& inputValue);
 	
 	// 스나이퍼건으로 교체 입력 함수 선언
 	void ChangeToSniperGun(const struct FInputActionValue& inputValue);
