@@ -47,4 +47,11 @@ public:
 	void DamageState();
 	void DieState();
 	
+	// 대기 시간
+	UPROPERTY(EditDefaultsOnly, Category = FSM)
+	float idleDelayTime = 2.f;
+	
+	// 경과 시간(누적)
+	float currentTime = 0.f;
+	
 };

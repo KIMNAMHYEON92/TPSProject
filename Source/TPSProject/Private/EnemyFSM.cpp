@@ -29,6 +29,13 @@ void UEnemyFSM::BeginPlay()
 void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+	// [DEBUG]
+	if (GEngine)
+	{
+		FString logMsg = UEnum::GetValueAsString(mState);
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, logMsg);
+	}
 
 	// 현재 상태에 따라 해상 함수만 실행 - FSM
 	switch (mState)
@@ -44,25 +51,35 @@ void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 // 대기 상태 : 일정 시간 후 추적으로 전환
 void UEnemyFSM::IdleState()
 {
+	// 시간 누적
+	currentTime+= GetWorld()->GetDeltaSeconds();
 	
+	if (currentTime > idleDelayTime)
+	{
+		// Move 상태로 전환
+		mState = EEnemyState::Move;
+		// 경과 시간 초기화
+		currentTime = 0.f;
+	}
 }
 
 // 추적 상태 : 플레이어 방향으로 이동, 공격 범위 진입 시 공격 상태로 전환
 void UEnemyFSM::MoveState()
 {
-	
+	mState = EEnemyState::Attack;
 }
 
 // 공격 상태 : 일정 주기로 공격, 플레이어가 공격 범위 이탈 시 추적 상태로 전환
 void UEnemyFSM::AttackState()
 {
-	
+	mState = EEnemyState::Move;
 }
 
 // 피격 상태 : 잠시 멈춤 후 대기로 복귀
 void UEnemyFSM::DamageState()
 {
-	
+	mState = EEnemyState::Idle;
+	mState = EEnemyState::Die;
 }
 
 // 사망 상태 : 사망 처리 (종착 상태, 더이상 전이 없음)
