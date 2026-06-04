@@ -6,6 +6,7 @@
 #include "Bullet.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -30,6 +31,8 @@ ATPSPlayer::ATPSPlayer()
 	gunMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun Mesh Component"));
 	// 캐릭터 메시 컴포넌트(GetMesh()) 부모에 부착
 	gunMeshComp->SetupAttachment(GetMesh());
+	// LineTracd가 총에 막히지 않도록 충돌 해제
+	gunMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	// 스켈레탈메시 데이터 동적로드
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempGunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Weapons/GrenadeLauncher/Meshes/SKM_GrenadeLauncher.SKM_GrenadeLauncher'"));
 	if (TempGunMesh.Succeeded())
@@ -43,6 +46,8 @@ ATPSPlayer::ATPSPlayer()
 	sniperGunComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sniper Gun Component"));
 	// 캐릭터 메시 컴포넌트 부모에 부착
 	sniperGunComp->SetupAttachment(GetMesh());
+	// LineTracd가 총에 막히지 않도록 충돌 해제
+	sniperGunComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	// 스태틱메시 데이터 동적로드
 	ConstructorHelpers::FObjectFinder<UStaticMesh> TempSniperGunMesh(TEXT("/Script/Engine.StaticMesh'/Game/Weapons/Sniper/source/sniper1.sniper1'"));
 	if (TempSniperGunMesh.Succeeded())
@@ -157,10 +162,50 @@ void ATPSPlayer::InputFire(const struct FInputActionValue& inputValue)
 {
 	if (bUsingGrenadeGun)
 	{
+		// 유탄총을 사용하는 경우
 		// 총 스켈레탈메시에 FirePosition이란 이름의 소켓의 월드 transform(위치/회전)을 가져옴
 		FTransform firePosition = gunMeshComp->GetSocketTransform(TEXT("FirePosition"));
 		// 위 위치/회전으로 BulletFactory가 BP_Bullet 인스턴스를 월드에 스폰
 		GetWorld()->SpawnActor<ABullet>(bulletFactory,firePosition);
+	}
+	else
+	{
+		// 스나이퍼건을 사용하는 경우
+		// 라인의 시작/종료 위치 설정 - 카메라부터 카메라 정면 50m 까지
+		FVector startPosition = cameraComp->GetComponentLocation();
+		FVector endPosition = startPosition + cameraComp->GetForwardVector() * 5000.f; //50m
+		
+		// 충돌 결과 저장, 자기자신은 충돌 검사에서 제외
+		FHitResult hitResult;
+		FCollisionQueryParams params;
+		params.AddIgnoredActor(this);
+		
+		// LineTraceSingleByChannel(결과그릇, 시작위치, 종료위치, 트레이스채널, 충돌옵션)
+		// Visibility 채널로 라인트레이스를 실행하고, 처음 부딫힌 액터 하나만 검출
+		bool bHit= GetWorld()->LineTraceSingleByChannel(hitResult,startPosition,endPosition,ECC_Visibility, params);
+		
+		// [DEBUG] LineTrace 경로 시각화 - 빨강(미충돌) / 초록(충돌)
+		DrawDebugLine(GetWorld(),startPosition,endPosition,bHit ? FColor::Green : FColor::Red, false, 1.f, 0,.2f);
+		
+		if (bHit)
+		{
+			// [DEBUG] 충돌 정보
+			/*
+			UE_LOG(LogTemp, Warning, TEXT("HIT: Actor=%s, Component=%s, Distance=%.1f, ImpactPoint=%s"),
+				hitResult.GetActor() ? *hitResult.GetActor()->GetName() : TEXT("None"),
+				hitResult.GetComponent() ? *hitResult.GetComponent()->GetName() : TEXT("None"),
+				hitResult.Distance,
+				hitResult.ImpactPoint.ToString()
+				);
+			*/
+			// [DEBUG] 타격 위치 시각화
+			DrawDebugSphere(GetWorld(),hitResult.ImpactPoint, 20.f, 12, FColor::Yellow, false, 2.f);
+			
+			// 타격 위치에 Niagara 이펙트 스폰
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),bulletEffectFactory,hitResult.ImpactPoint);
+			
+		}
+		
 	}
 }
 
