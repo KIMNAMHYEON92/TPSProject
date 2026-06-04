@@ -66,4 +66,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = FSM)
 	float attackRange = 150.f;
 	
+	// 공격 주기
+	UPROPERTY(EditDefaultsOnly, Category = FSM)
+	float attackDelayTime = 1.f;
 };
