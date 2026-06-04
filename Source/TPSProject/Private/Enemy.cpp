@@ -2,6 +2,8 @@
 
 
 #include "Enemy.h"
+
+#include "EnemyFSM.h"
 #include "UObject/ConstructorHelpers.h"
 
 
@@ -17,6 +19,9 @@ AEnemy::AEnemy()
 		GetMesh()->SetSkeletalMesh(tempMesh.Object);
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0.f,0.f,-88.f),FRotator(0.f,-90.f,0.f));
 	}
+	
+	// FSM 컴포넌트 등록 - 적에게 상태관리 두뇌를 부착
+	fsm = CreateDefaultSubobject<UEnemyFSM>(TEXT("FSM"));
 }
 
 // Called when the game starts or when spawned
