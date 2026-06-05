@@ -22,4 +22,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = PlayerAnim)
 	float speed = 0.f;
 	
+	// 캐릭터가 현재 공중에 있는지 여부 (점프/낙하 중)
+	UPROPERTY(BlueprintReadOnly, Category = PlayerAnim)
+	bool isInAir = false;
+	
 };
