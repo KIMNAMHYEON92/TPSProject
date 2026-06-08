@@ -78,6 +78,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Input)
 	class UInputAction* ia_SniperZoom;
 	
+	// 걷기 IA 필드 - 기본은 달리기, 누르는 동안 걷기
+	UPROPERTY(EditDefaultsOnly, Category = Input)
+	class UInputAction* ia_Walk;
+	
 	// 현재 유탄총을 사용중인지 여부 (true : 유탄총 / false : 스나이퍼건)
 	bool bUsingGrenadeGun = true;
 	
@@ -90,9 +94,13 @@ public:
 	UPROPERTY()
 	class UUserWidget* crosshairUI;
 		
-	// 이동 속도
+	// 걷기 속도
 	UPROPERTY(EditDefaultsOnly, Category = PlayerSetting)
-	float walkSpeed = 600.f;
+	float walkSpeed = 200.f;
+	
+	// 달리기 속도
+	UPROPERTY(EditDefaultsOnly, Category = PlayerSetting)
+	float runSpeed = 600.f;
 	
 	// 총알 스폰 팩토리
 	UPROPERTY(EditDefaultsOnly, Category = BulletFactory)
@@ -128,6 +136,9 @@ public:
 	// 총알 발사 입력 함수 선언
 	void InputFire(const struct FInputActionValue& inputValue);
 	
+	// 걷기 입력 함수 선언
+	void InputWalk(const struct FInputActionValue& inputValue);
+	
 	// 유탄총으로 교체 입력 함수 선언
 	void ChangeToGrenadeGun(const struct FInputActionValue& inputValue);
 	
@@ -136,5 +147,4 @@ public:
 	
 	// 스나이퍼건 줌 입력 함수 선언
 	void SniperZoom(const struct FInputActionValue& inputValue);
-	
 };

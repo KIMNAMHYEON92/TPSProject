@@ -10,6 +10,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 
@@ -70,6 +71,9 @@ ATPSPlayer::ATPSPlayer()
 void ATPSPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	// 초기 이동 속도를 달리기로 설정 (기본 = 달리기, Shift = 걷기)
+	GetCharacterMovement()->MaxWalkSpeed = runSpeed;
 	
 	// Enhanced Input 시스템이 IMC_TPS 사용하도록 설정
 	auto pc = Cast<APlayerController>(Controller);
@@ -132,8 +136,26 @@ void ATPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		PlayerInput->BindAction(ia_SniperGun, ETriggerEvent::Started, this, &ATPSPlayer::ChangeToSniperGun);
 		PlayerInput->BindAction(ia_SniperZoom, ETriggerEvent::Started, this, &ATPSPlayer::SniperZoom);
 		//PlayerInput->BindAction(ia_SniperZoom, ETriggerEvent::Completed, this, &ATPSPlayer::SniperZoom);
+		PlayerInput->BindAction(ia_Walk, ETriggerEvent::Started, this, &ATPSPlayer::InputWalk);
+		PlayerInput->BindAction(ia_Walk, ETriggerEvent::Completed, this, &ATPSPlayer::InputWalk);
 	}
 	
+}
+
+// 걷기 입력에 따른 콜백 함수 구현
+void ATPSPlayer::InputWalk(const struct FInputActionValue& inputValue)
+{
+	// 보행 토글 입력에 따른 걷기, 달리기 전환 구현
+	auto movement = GetCharacterMovement();
+	// 현재 달리기 모드라면, 걷기로 전환
+	if (movement -> MaxWalkSpeed > walkSpeed)
+	{
+		movement->MaxWalkSpeed = walkSpeed;
+	}
+	else // 걷기 모드라면, 달리기로 복구 
+	{
+		movement->MaxWalkSpeed = runSpeed;
+	}
 }
 
 // 상하 회전 입력에 따른 콜백 함수 구현
