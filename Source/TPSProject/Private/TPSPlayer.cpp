@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "NiagaraFunctionLibrary.h"
+#include "TPSPlayerAnim.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -189,6 +190,14 @@ void ATPSPlayer::InputJump(const struct FInputActionValue& inputValue)
 // 총알발사 입력에 따른 콜백 함수 구현
 void ATPSPlayer::InputFire(const struct FInputActionValue& inputValue)
 {
+	// 발사 동작 몽타주를 재생
+	// 애니메이션 재생 책임은 AnimInstance가 담당 / 여기선 호출만
+	auto anim = Cast<UTPSPlayerAnim>(GetMesh()->GetAnimInstance());
+	if (anim)
+	{
+		anim->PlayerAttackAnim();
+	}
+	
 	if (bUsingGrenadeGun)
 	{
 		// 유탄총을 사용하는 경우

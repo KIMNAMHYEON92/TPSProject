@@ -30,4 +30,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = PlayerAnim)
 	bool isInAir = false;
 	
+	// 재생할 발사 애니메이션 몽타주 선언
+	UPROPERTY(EditDefaultsOnly, Category = PlayerAnim)
+	class UAnimMontage* attackAnimMontage;
+	
+	// 발사 애니메이션 재생 함수 (TPSPlayer가 발사 할 때 호출)
+	void PlayerAttackAnim();
 };

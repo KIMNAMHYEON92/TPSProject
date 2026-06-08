@@ -44,3 +44,9 @@ void UTPSPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 	
 	// 
 }
+
+void UTPSPlayerAnim::PlayerAttackAnim()
+{
+	// UAnimInstance 내장 함수인 Montage_Play로 할당된 몽타주 재생
+	Montage_Play(attackAnimMontage);
+}
